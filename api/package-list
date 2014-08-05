@@ -1,0 +1,8 @@
+griffon.builder.javafx
+griffon.builder.swing
+griffon.builder.swing.factory
+griffon.javafx.support.nuvolaicons
+griffon.plugins.nuvolaicons
+griffon.swing.support.nuvolaicons
+org.codehaus.griffon.runtime.javafx.nuvolaicons
+org.codehaus.griffon.runtime.swing.nuvolaicons
