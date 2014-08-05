@@ -1,0 +1,4 @@
+
+:link_nuvolaicons: link:http://www.icon-king.com/projects/nuvola/[David Vignoni's Nuvola icon set, window="_blank"]
+:api_link_nuvolaicon_javafx: link:api/griffon/javafx/support/nuvolaicons/NuvolaIcon.html[griffon.javafx.support.nuvolaicons.NuvolaIcon, window="_blank"]
+:api_link_nuvolaicon_swing: link:api/griffon/swing/support/nuvolaicons/NuvolaIcon.html[griffon.swing.support.nuvolaicons.NuvolaIcon, window="_blank"]
