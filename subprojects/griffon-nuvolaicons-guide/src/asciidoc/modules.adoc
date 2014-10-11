@@ -13,9 +13,9 @@ binding if the wrong type has been applied by the Griffon runtime.
 
 == JavaFX
 
-Module name: +nuvolaicons-javafx-groovy+
+Module name: `nuvolaicons-javafx-groovy`
 
-Depends on: +javafx-groovy+
+Depends on: `javafx-groovy`
 
 [source,java,options="nowrap"]
 ----
@@ -27,14 +27,14 @@ The following nodes will become available on a Groovy View
 [options="2*,header"]
 |===
 | Node     | Type
-| nuvolaIcon | +{api_link_nuvolaicon_javafx}+
+| nuvolaIcon | `{api_link_nuvolaicon_javafx}`
 |===
 
 == Swing
 
-Module name: +nuvolaicons-swing-groovy+
+Module name: `nuvolaicons-swing-groovy`
 
-Depends on: +swing-groovy+
+Depends on: `swing-groovy`
 
 [source,java,options="nowrap"]
 ----
@@ -46,13 +46,13 @@ The following nodes will become available on a Groovy View
 [options="2*,header"]
 |===
 | Node     | Type
-| nuvolaIcon | +{api_link_nuvolaicon_swing}+
+| nuvolaIcon | `{api_link_nuvolaicon_swing}`
 |===
 
 Both `nuvolaIcon` Nodes support the following properties
 
-icon:: The name of the icon, such as +actions:back+ or +actions:forward+.
-size:: The size of the icon. One of +16+, +22+, +32+, +48+, +64+, +128+.
+icon:: The name of the icon, such as `actions:back` or `actions:forward`.
+size:: The size of the icon. One of `16`, `22`, `32`, `48`, `64`, `128`.
 
-NOTE: the +actions+ category is not supported in sizes bigger than +48+.
+NOTE: the `actions` category is not supported in sizes bigger than `48`.
 
