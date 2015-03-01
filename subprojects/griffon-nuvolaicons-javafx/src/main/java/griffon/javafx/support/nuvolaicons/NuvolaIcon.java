@@ -21,14 +21,17 @@ import javafx.scene.image.Image;
 import javax.annotation.Nonnull;
 import java.net.URL;
 
+import static griffon.plugins.nuvolaicons.Nuvola.invalidDescription;
+import static griffon.util.GriffonNameUtils.requireNonBlank;
 import static java.util.Objects.requireNonNull;
 
 /**
  * @author Andres Almiray
  */
 public class NuvolaIcon extends Image {
-    private final Nuvola nuvola;
-    private final int size;
+    private static final String ERROR_NUVOLA_NULL = "Argument 'nuvola' must not be null.";
+    private Nuvola nuvola;
+    private int size;
 
     public NuvolaIcon(@Nonnull Nuvola nuvola) {
         this(nuvola, 16);
@@ -36,21 +39,44 @@ public class NuvolaIcon extends Image {
 
     public NuvolaIcon(@Nonnull Nuvola nuvola, int size) {
         super(toURL(nuvola, size), true);
-        this.nuvola = nuvola;
+        this.nuvola = requireNonNull(nuvola, ERROR_NUVOLA_NULL);
         this.size = size;
     }
 
     public NuvolaIcon(@Nonnull String description) {
-        this(Nuvola.findByDescription(description));
+        super(toURL(description));
+        nuvola = Nuvola.findByDescription(description);
+
+        String[] parts = description.split(":");
+        if (parts.length == 3) {
+            try {
+                size = Integer.parseInt(parts[2]);
+            } catch (NumberFormatException e) {
+                throw invalidDescription(description, e);
+            }
+        } else {
+            size = 16;
+        }
     }
 
     @Nonnull
     private static String toURL(@Nonnull Nuvola nuvola, int size) {
-        requireNonNull(nuvola, "Argument 'nuvola' must not be null.");
+        requireNonNull(nuvola, ERROR_NUVOLA_NULL);
         String resource = nuvola.asResource(size);
         URL url = Thread.currentThread().getContextClassLoader().getResource(resource);
         if (url == null) {
-            throw new IllegalArgumentException("Icon " + nuvola.formatted() + " does not exist");
+            throw new IllegalArgumentException("Icon " + nuvola + ":" + size + " does not exist");
+        }
+        return url.toExternalForm();
+    }
+
+    @Nonnull
+    private static String toURL(@Nonnull String description) {
+        requireNonBlank(description, "Argument 'description' must not be blank");
+        String resource = Nuvola.asResource(description);
+        URL url = Thread.currentThread().getContextClassLoader().getResource(resource);
+        if (url == null) {
+            throw new IllegalArgumentException("Icon " + description + " does not exist");
         }
         return url.toExternalForm();
     }

@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 
 import static griffon.util.GriffonClassUtils.requireState;
 import static griffon.util.GriffonNameUtils.isBlank;
+import static griffon.util.GriffonNameUtils.requireNonBlank;
 
 /**
  * @author Andres Almiray
@@ -701,6 +702,8 @@ public enum Nuvola {
     MIMETYPES_WIDGET_DOC("mimetypes", "widget_doc"),
     MIMETYPES_WORDPROCESSING("mimetypes", "wordprocessing");
 
+    private static final String ERROR_DESCRIPTION_BLANK = "Argument 'description' must not be blank";
+
     private final String category;
     private final String description;
 
@@ -726,7 +729,7 @@ public enum Nuvola {
 
     @Nonnull
     public String asResource(int size) {
-        requireState(size == 16 || size == 22 || size == 32 || size == 48 || size == 64 || size == 128, "Argument 'size' must be one of [16, 22, 32, 48, 64, 128].");
+        requireValidSize(size);
         if ("actions".equals(category) && size > 48) {
             throw new IllegalArgumentException("Category " + category + " is not available for size " + size);
         }
@@ -734,21 +737,101 @@ public enum Nuvola {
     }
 
     @Nonnull
-    public static Nuvola findByDescription(@Nonnull String description) {
-        if (isBlank(description)) {
-            throw new IllegalArgumentException("Description " + description + " is not a valid Nuvola icon description");
-        }
-        if (!description.contains(":")) {
-            throw new IllegalArgumentException("Description " + description + " is not a valid Nuvola icon description");
-        }
+    public static String asResource(@Nonnull String description) {
+        int size = 16;
+        checkDescription(description);
 
         String[] parts = description.split(":");
+        if (parts.length == 3) {
+            try {
+                size = Integer.parseInt(parts[2]);
+            } catch (NumberFormatException e) {
+                throw invalidDescription(description, e);
+            }
+        }
 
-        for (Nuvola nuvola : values()) {
-            if (nuvola.category.equalsIgnoreCase(parts[0]) && nuvola.description.equalsIgnoreCase(parts[1])) {
+        Nuvola nuvola = findByDescription(description, size);
+        return nuvola.asResource(size);
+    }
+
+    @Nonnull
+    public static Nuvola findByDescription(@Nonnull String description) {
+        checkDescription(description);
+
+        Nuvola nuvola = null;
+        String[] parts = description.split(":");
+        for (Nuvola n : values()) {
+            if (n.category.equalsIgnoreCase(parts[0]) && n.description.equalsIgnoreCase(parts[1])) {
+                nuvola = n;
+                break;
+            }
+        }
+
+        if (nuvola == null) {
+            throw invalidDescription(description);
+        }
+
+        if (parts.length == 3) {
+            int size = 16;
+            try {
+                size = Integer.parseInt(parts[2]);
+            } catch (NumberFormatException e) {
+                throw invalidDescription(description, e);
+            }
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            if (classLoader.getResource(nuvola.asResource(size)) != null) {
                 return nuvola;
             }
         }
-        throw new IllegalArgumentException("Description " + description + " is not a a valid Nuvola icon description");
+
+        return nuvola;
+    }
+
+    @Nonnull
+    public static Nuvola findByDescription(@Nonnull String description, int size) {
+        checkDescription(description);
+
+        Nuvola nuvola = null;
+        String[] parts = description.split(":");
+        for (Nuvola n : values()) {
+            if (n.category.equalsIgnoreCase(parts[0]) && n.description.equalsIgnoreCase(parts[1])) {
+                nuvola = n;
+                break;
+            }
+        }
+
+        if (nuvola == null) {
+            throw invalidDescription(description);
+        }
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader.getResource(nuvola.asResource(size)) != null) {
+            return nuvola;
+        }
+
+        throw invalidDescription(description);
+    }
+
+    public static int requireValidSize(int size) {
+        requireState(size == 16 || size == 22 || size == 32 || size == 48 || size == 64 || size == 128, "Argument 'size' must be one of [16, 22, 32, 48, 64, 128].");
+        return size;
+    }
+
+    private static void checkDescription(String description) {
+        if (isBlank(description)) {
+            throw invalidDescription(description);
+        }
+    }
+
+    @Nonnull
+    public static IllegalArgumentException invalidDescription(@Nonnull String description) {
+        requireNonBlank(description, ERROR_DESCRIPTION_BLANK);
+        throw new IllegalArgumentException("Description " + description + " is not a valid Nuvola icon description");
+    }
+
+    @Nonnull
+    public static IllegalArgumentException invalidDescription(@Nonnull String description, Exception e) {
+        requireNonBlank(description, ERROR_DESCRIPTION_BLANK);
+        throw new IllegalArgumentException("Description " + description + " is not a valid Nuvola icon description", e);
     }
 }

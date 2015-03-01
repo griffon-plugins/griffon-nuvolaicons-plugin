@@ -19,16 +19,25 @@ import griffon.plugins.nuvolaicons.Nuvola;
 
 import javax.annotation.Nonnull;
 import javax.swing.ImageIcon;
+import java.awt.Toolkit;
 import java.net.URL;
 
+import static griffon.plugins.nuvolaicons.Nuvola.invalidDescription;
+import static griffon.plugins.nuvolaicons.Nuvola.requireValidSize;
+import static griffon.util.GriffonNameUtils.requireNonBlank;
 import static java.util.Objects.requireNonNull;
 
 /**
  * @author Andres Almiray
  */
 public class NuvolaIcon extends ImageIcon {
-    private final Nuvola nuvola;
-    private final int size;
+    private static final String ERROR_NUVOLA_NULL = "Argument 'nuvola' must not be null";
+    private Nuvola nuvola;
+    private int size;
+
+    public NuvolaIcon() {
+        this(Nuvola.findByDescription("apps:error:16"));
+    }
 
     public NuvolaIcon(@Nonnull Nuvola nuvola) {
         this(nuvola, 16);
@@ -36,21 +45,22 @@ public class NuvolaIcon extends ImageIcon {
 
     public NuvolaIcon(@Nonnull Nuvola nuvola, int size) {
         super(toURL(nuvola, size));
-        this.nuvola = nuvola;
+        this.nuvola = requireNonNull(nuvola, ERROR_NUVOLA_NULL);
         this.size = size;
     }
 
     public NuvolaIcon(@Nonnull String description) {
         this(Nuvola.findByDescription(description));
+        setNuvola(description);
     }
 
     @Nonnull
     private static URL toURL(@Nonnull Nuvola nuvola, int size) {
-        requireNonNull(nuvola, "Argument 'nuvola' must not be null.");
+        requireNonNull(nuvola, ERROR_NUVOLA_NULL);
         String resource = nuvola.asResource(size);
         URL url = Thread.currentThread().getContextClassLoader().getResource(resource);
         if (url == null) {
-            throw new IllegalArgumentException("Icon " + nuvola.formatted() + " does not exist");
+            throw new IllegalArgumentException("Icon " + nuvola + " does not exist");
         }
         return url;
     }
@@ -60,7 +70,36 @@ public class NuvolaIcon extends ImageIcon {
         return nuvola;
     }
 
+    public void setNuvola(@Nonnull Nuvola nuvola) {
+        this.nuvola = requireNonNull(nuvola, ERROR_NUVOLA_NULL);
+        setImage(Toolkit.getDefaultToolkit().getImage(toURL(nuvola, size)));
+    }
+
+    public void setNuvola(@Nonnull String description) {
+        requireNonBlank(description, "Argument 'description' must not be blank");
+
+        String[] parts = description.split(":");
+        if (parts.length == 3) {
+            try {
+                int s = Integer.parseInt(parts[2]);
+                this.size = requireValidSize(s);
+            } catch (NumberFormatException e) {
+                throw invalidDescription(description, e);
+            }
+        } else if (size == 0) {
+            size = 16;
+        }
+
+        nuvola = Nuvola.findByDescription(description);
+        setImage(Toolkit.getDefaultToolkit().getImage(toURL(nuvola, size)));
+    }
+
     public int getSize() {
         return size;
+    }
+
+    public void setSize(int size) {
+        this.size = requireValidSize(size);
+        setImage(Toolkit.getDefaultToolkit().getImage(toURL(nuvola, size)));
     }
 }
