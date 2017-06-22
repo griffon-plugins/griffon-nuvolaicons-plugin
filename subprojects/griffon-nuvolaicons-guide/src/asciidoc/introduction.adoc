@@ -4,3 +4,5 @@
 
 Provides a shortcut for adding nuvola icons based on {link_nuvolaicons}.
 
+Griffon version: {griffon-version}
+
